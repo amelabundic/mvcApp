@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        h1 {
+            color: blue;
+            font-size: 35px;
+        }
+        hr {
+            height: 4px;
+            background-color: blue;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dostupna vozila</h1>
+    <span id="span1"></span>
+
+<hr>
+      <form action="" method="get">
+         <label for="Text1">Unesite id:</label><br>
+        <input type="text" name="Text1" id="Text1"><br>
+        <br>
+        <input type="button" value="Pronadji" onclick="Pronadji()">
+      </form>
+      <br>
+      <span id="span2"></span>
+    <script>
+        function PrikaziAuta() {
+            
+        var span1 = document.getElementById("span1");
+
+        var zahtjev = new XMLHttpRequest();
+        zahtjev.open("GET","/Home/Index",true);
+        zahtjev.send();
+
+        zahtjev.onreadystatechange = function () {
+            if (zahtjev.readyState == 4 && zahtjev.status == 200) {
+                var auta = JSON.parse(zahtjev.responseText);
+
+                var s = "<ul>";
+
+                for (let i = 0; i < auta.length; i++) {
+                    s +=`<li>${auta[i].autoId} ${auta[i].proizvodjac} ${auta[i].model + ","} ${auta[i].boja + " " + "boja" + ","} ${auta[i].stanje}</li>`;
+
+                    
+                }
+                s += "</ul>";
+                span1.innerHTML = s;
+            }
+        };
+        }
+        document.body.onload = PrikaziAuta;
+
+        function Pronadji() {
+            var span2 = document.getElementById("span2");
+            var Text1 = document.getElementById("Text1");
+
+            var id = Text1.value;
+
+            if (isNaN(id) || id == "") {
+                alert("Id mora biti broj");
+                Text1.value = "";
+                Text1.focus();
+                span2.innerHTML = "";
+                return;
+            }
+
+            var zahtjev = new XMLHttpRequest();
+            zahtjev.open("GET",`/Home/Index/${id}`,true)
+            zahtjev.send();
+
+            zahtjev.onreadystatechange = function () {
+                if (zahtjev.readyState == 4 && zahtjev.status == 200) {
+                    var auto = JSON.parse(zahtjev.responseText);
+
+                    if (auto.autoId == 0) {
+                        span2.innerHTML = "Ne postoji auto za dati id";
+                    } else {
+                        span2.innerHTML =`
+                        Id: ${auto.autoId}<br>
+                        Proizvodjac: ${auto.proizvodjac}<br>
+                        Model: ${auto.model}<br>
+                        Boja : ${auto.boja}<br>
+                        Stanje: ${auto.stanje}<br>
+                        `;
+                    }
+                }
+            };
+            
+        }
+    </script>
+</body>
+</html>
